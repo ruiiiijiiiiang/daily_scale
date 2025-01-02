@@ -7,14 +7,26 @@ mod lib {
     pub mod fret_board;
     pub mod notes;
     pub mod scales;
+    pub mod tunings;
 }
-use lib::fret_board::*;
-use lib::notes::*;
-use lib::scales::*;
+use lib::fret_board::{build_fret_board, FRET_SPAN, NUM_FRETS};
+use lib::notes::{note_to_string, Note, NOTES, NUM_NOTES};
+use lib::scales::{get_steps_by_scale, scale_to_string, Scale, SCALES};
+use lib::tunings::{tuning_to_string, Tuning};
 
 #[derive(Parser, Debug)]
 #[command(name = "daily-scale", version, about = "Have you practiced today?", long_about = None)]
 struct Args {
+    #[arg(
+        value_enum,
+        required = false,
+        short = 't',
+        long,
+        default_value = "standard-e6",
+        help = "Your choice of tuning"
+    )]
+    tuning: Option<Tuning>,
+
     #[arg(
         value_enum,
         value_delimiter = ',',
@@ -56,6 +68,7 @@ struct Args {
 
 fn main() {
     let Args {
+        tuning,
         root_notes,
         scales,
         starting_frets,
@@ -65,6 +78,8 @@ fn main() {
     let num_days_since_epoch = Utc::now().date_naive().num_days_from_ce();
     let seed = num_days_since_epoch.to_string().parse::<u64>().unwrap();
     let mut rng = StdRng::seed_from_u64(seed);
+
+    let tuning = tuning.unwrap();
 
     let root_note = if let Some(ref arg_notes) = root_notes {
         arg_notes.choose(&mut rng).unwrap()
@@ -95,17 +110,18 @@ fn main() {
         })
         .collect::<Vec<Note>>();
 
-    let fret_board: Vec<String> = build_fret_board(*starting_fret, &notes_in_scale);
+    let fret_board: Vec<String> = build_fret_board(&tuning, *starting_fret, &notes_in_scale);
 
     for string in fret_board {
         println!("{}", string);
     }
 
     println!(
-        "Here's the scale of the day: {} {} starting at fret {}",
+        "Here's the scale of the day: {} {} starting at fret {} in {} tuning",
         note_to_string(*root_note),
         scale_to_string(*scale),
-        starting_fret
+        starting_fret,
+        tuning_to_string(tuning),
     );
 
     println!(

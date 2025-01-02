@@ -1,6 +1,6 @@
 use clap::ValueEnum;
 
-#[derive(Copy, Clone, Debug, ValueEnum, Hash, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, ValueEnum)]
 pub enum Scale {
     Major,
     HarmonicMinor,

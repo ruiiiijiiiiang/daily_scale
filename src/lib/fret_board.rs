@@ -1,16 +1,39 @@
-use super::notes::*;
+use super::notes::{note_to_string, Note, NOTES, NUM_NOTES};
+use super::tunings::{get_notes_by_tuning, Tuning};
 
 pub const NUM_FRETS: usize = 24;
 
 pub const FRET_SPAN: usize = 5;
 
-pub const NUM_THICK_STRINGS: usize = 3;
+pub fn build_fret_board(
+    tuning: &Tuning,
+    starting_fret: usize,
+    notes_in_scale: &Vec<Note>,
+) -> Vec<String> {
+    let mut fret_board = Vec::new();
+    let notes_in_tuning = get_notes_by_tuning(*tuning);
+    for (string_counter, string) in notes_in_tuning.iter().enumerate() {
+        let string_char = if string_counter < (notes_in_tuning.len() - NUM_THICK_STRINGS) {
+            '='
+        } else {
+            '-'
+        };
+        let fret_board_string =
+            build_fret_board_string(starting_fret, notes_in_scale, string, string_char);
+        fret_board.insert(0, fret_board_string);
+    }
+    let fret_num_string = build_fret_num_string(starting_fret);
+    fret_board.push(fret_num_string);
+    return fret_board;
+}
 
-pub const FRET_LENGTH: [usize; 25] = [
+const NUM_THICK_STRINGS: usize = 3;
+
+const FRET_LENGTH: [usize; 25] = [
     0, 10, 10, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5,
 ];
 
-pub fn format_note(note: Note, string_char: char) -> String {
+fn format_note(note: Note, string_char: char) -> String {
     let note_string = String::from(note_to_string(note));
     if note_string.len() == 1 {
         format!("{}{}", note_string, string_char)
@@ -19,7 +42,7 @@ pub fn format_note(note: Note, string_char: char) -> String {
     }
 }
 
-pub fn format_fret_num(fret_num: usize) -> String {
+fn format_fret_num(fret_num: usize) -> String {
     let fret_num_string = fret_num.to_string();
     if fret_num_string.len() == 1 {
         format!("{} ", fret_num_string)
@@ -28,32 +51,13 @@ pub fn format_fret_num(fret_num: usize) -> String {
     }
 }
 
-const STANDARD_TUNING: [Note; 6] = [Note::E, Note::A, Note::D, Note::G, Note::B, Note::E];
-
-pub fn build_fret_board(starting_fret: usize, notes_in_scale: &Vec<Note>) -> Vec<String> {
-    let mut fret_board: Vec<String> = Vec::new();
-    for (string_counter, string) in STANDARD_TUNING.iter().enumerate() {
-        let fret_board_string: String =
-            build_fret_board_string(starting_fret, notes_in_scale, string, string_counter);
-        fret_board.insert(0, fret_board_string);
-    }
-    let fret_num_string: String = build_fret_num_string(starting_fret);
-    fret_board.push(fret_num_string);
-    return fret_board;
-}
-
 fn build_fret_board_string(
     starting_fret: usize,
     notes_in_scale: &Vec<Note>,
     string: &Note,
-    string_counter: usize,
+    string_char: char,
 ) -> String {
-    let string_char = if string_counter < NUM_THICK_STRINGS {
-        '='
-    } else {
-        '-'
-    };
-    let mut fret_board_string: String = String::new();
+    let mut fret_board_string = String::new();
     let empty_string_note_index = NOTES.iter().position(|&note| note == *string).unwrap();
     let notes_in_string = (0..=NUM_NOTES)
         .map(|fret| {
@@ -96,7 +100,7 @@ fn build_fret_board_string(
 }
 
 fn build_fret_num_string(starting_fret: usize) -> String {
-    let mut fret_num_string: String = String::new();
+    let mut fret_num_string = String::new();
     for fret in starting_fret..(starting_fret + FRET_SPAN) {
         if fret == 0 {
             fret_num_string.push(' ');
