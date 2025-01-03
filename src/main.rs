@@ -1,18 +1,15 @@
-use chrono::prelude::*;
+use chrono::{Datelike, Utc};
 use clap::Parser;
-use rand::prelude::*;
-use rand::SeedableRng;
+use rand::rngs::StdRng;
+use rand::seq::SliceRandom;
+use rand::{RngCore, SeedableRng};
 
-mod lib {
-    pub mod fret_board;
-    pub mod notes;
-    pub mod scales;
-    pub mod tunings;
-}
-use lib::fret_board::{build_fret_board, FRET_SPAN, NUM_FRETS};
-use lib::notes::{note_to_string, Note, NOTES, NUM_NOTES};
-use lib::scales::{get_steps_by_scale, scale_to_string, Scale, SCALES};
-use lib::tunings::{tuning_to_string, Tuning};
+use daily_scale::lib::fret_board::{build_fret_board, FRET_SPAN, NUM_FRETS};
+use daily_scale::lib::notes::{
+    accidental_to_note, note_to_string, Accidental, Note, FLAT_ACCIDENTALS, NOTES, NUM_NOTES,
+};
+use daily_scale::lib::scales::{get_steps_by_scale, scale_to_string, Scale, SCALES};
+use daily_scale::lib::tunings::{tuning_to_string, Tuning};
 
 #[derive(Parser, Debug)]
 #[command(name = "daily-scale", version, about = "Have you practiced today?", long_about = None)]
@@ -35,7 +32,7 @@ struct Args {
         long,
         help = "Pool of root notes to randomly choose from"
     )]
-    root_notes: Option<Vec<Note>>,
+    root_notes: Option<Vec<Accidental>>,
 
     #[arg(
         value_enum,
@@ -64,6 +61,14 @@ struct Args {
         help = "Your choice of frets to start the scale on"
     )]
     starting_frets: Option<Vec<usize>>,
+
+    #[arg(
+        required = false,
+        short = 'r',
+        long,
+        help = "If true, the rng will no longer use today's date as seed"
+    )]
+    full_randomness: bool,
 }
 
 fn main() {
@@ -72,17 +77,26 @@ fn main() {
         root_notes,
         scales,
         starting_frets,
+        full_randomness,
         ..
     } = Args::parse();
 
-    let num_days_since_epoch = Utc::now().date_naive().num_days_from_ce();
-    let seed = num_days_since_epoch.to_string().parse::<u64>().unwrap();
-    let mut rng = StdRng::seed_from_u64(seed);
+    let mut rng: Box<dyn RngCore> = if full_randomness {
+        Box::new(rand::thread_rng())
+    } else {
+        let seed = Utc::now().date_naive().num_days_from_ce() as u64;
+        Box::new(StdRng::seed_from_u64(seed))
+    };
 
     let tuning = tuning.unwrap();
 
+    let mut flat = false;
     let root_note = if let Some(ref arg_notes) = root_notes {
-        arg_notes.choose(&mut rng).unwrap()
+        let arg_note = arg_notes.choose(&mut rng).unwrap();
+        if FLAT_ACCIDENTALS.contains(arg_note) {
+            flat = true
+        }
+        &(accidental_to_note(arg_note))
     } else {
         NOTES.choose(&mut rng).unwrap()
     };
@@ -110,7 +124,7 @@ fn main() {
         })
         .collect::<Vec<Note>>();
 
-    let fret_board: Vec<String> = build_fret_board(&tuning, *starting_fret, &notes_in_scale);
+    let fret_board: Vec<String> = build_fret_board(&tuning, *starting_fret, &notes_in_scale, flat);
 
     for string in fret_board {
         println!("{}", string);
@@ -118,7 +132,7 @@ fn main() {
 
     println!(
         "Here's the scale of the day: {} {} starting at fret {} in {} tuning",
-        note_to_string(*root_note),
+        note_to_string(*root_note, flat),
         scale_to_string(*scale),
         starting_fret,
         tuning_to_string(tuning),
@@ -128,7 +142,7 @@ fn main() {
         "The notes in this scale are: {}",
         notes_in_scale
             .iter()
-            .map(|note| note_to_string(*note))
+            .map(|note| note_to_string(*note, flat))
             .collect::<Vec<&str>>()
             .join(", ")
     );
