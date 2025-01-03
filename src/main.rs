@@ -30,7 +30,7 @@ struct Args {
         required = false,
         short = 'n',
         long,
-        help = "Pool of root notes to randomly choose from"
+        help = "Pool of root notes of the scale"
     )]
     root_notes: Option<Vec<Accidental>>,
 
@@ -40,7 +40,7 @@ struct Args {
         required = false,
         short = 's',
         long,
-        help = "Pool of scales to randomly choose from"
+        help = "Pool of scales"
     )]
     scales: Option<Vec<Scale>>,
 
@@ -58,7 +58,7 @@ struct Args {
                 Err(format!("Number must be <= {}", NUM_FRETS - FRET_SPAN + 1))
             }
         },
-        help = "Your choice of frets to start the scale on"
+        help = "Pool of frets to start the scale on"
     )]
     starting_frets: Option<Vec<usize>>,
 
