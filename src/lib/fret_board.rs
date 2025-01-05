@@ -6,13 +6,13 @@ pub const NUM_FRETS: usize = 24;
 pub const FRET_SPAN: usize = 5;
 
 pub fn build_fret_board(
-    tuning: &Tuning,
+    tuning: Tuning,
     starting_fret: usize,
     notes_in_scale: &[Note],
     flat: bool,
 ) -> Vec<String> {
     let mut fret_board = Vec::new();
-    let notes_in_tuning = get_notes_by_tuning(*tuning);
+    let notes_in_tuning = get_notes_by_tuning(tuning);
     for (string_counter, string) in notes_in_tuning.iter().enumerate() {
         let string_char = if string_counter < (notes_in_tuning.len() - NUM_THICK_STRINGS) {
             '='
@@ -124,4 +124,141 @@ fn build_fret_num_string(starting_fret: usize) -> String {
     });
     fret_num_string.push('|');
     fret_num_string
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format_note() {
+        assert_eq!(format_note(Note::A, '-', true), "A-");
+        assert_eq!(format_note(Note::CSharp, '=', false), "C#");
+        assert_eq!(format_note(Note::GSharp, '-', true), "Ab");
+    }
+
+    #[test]
+    fn test_format_fret_num() {
+        assert_eq!(format_fret_num(0), "0 ");
+        assert_eq!(format_fret_num(14), "14");
+    }
+
+    #[test]
+    fn test_build_fret_board_string() {
+        assert_eq!(
+            build_fret_board_string(5, &[Note::A, Note::B, Note::C], &Note::E, '=', false),
+            "|====A====|========|===B====|===C====|========|"
+        );
+        assert_eq!(
+            build_fret_board_string(
+                12,
+                &[Note::DSharp, Note::E, Note::FSharp],
+                &Note::D,
+                '=',
+                false
+            ),
+            "|=======|===D#==|===E===|======|==F#==|"
+        );
+        assert_eq!(
+            build_fret_board_string(
+                0,
+                &[Note::B, Note::CSharp, Note::DSharp],
+                &Note::B,
+                '-',
+                true
+            ),
+            "B-|----------|----Db----|---------|----Eb---|"
+        );
+    }
+
+    #[test]
+    fn test_build_fret_num_string() {
+        assert_eq!(
+            build_fret_num_string(0),
+            "  |    1     |    2     |    3    |    4    |"
+        );
+        assert_eq!(
+            build_fret_num_string(12),
+            "|   12  |   13  |   14  |  15  |  16  |"
+        );
+    }
+
+    #[test]
+    fn test_build_fret_board() {
+        assert_eq!(
+            build_fret_board(
+                Tuning::OpenG6,
+                0,
+                &[
+                    Note::A,
+                    Note::B,
+                    Note::C,
+                    Note::D,
+                    Note::E,
+                    Note::F,
+                    Note::GSharp
+                ],
+                false,
+            ),
+            vec![
+                "D-|----------|----E-----|----F----|---------|",
+                "B-|----C-----|----------|----D----|---------|",
+                "--|----G#----|----A-----|---------|----B----|",
+                "D=|==========|====E=====|====F====|=========|",
+                "==|====G#====|====A=====|=========|====B====|",
+                "D=|==========|====E=====|====F====|=========|",
+                "  |    1     |    2     |    3    |    4    |",
+            ]
+        );
+        assert_eq!(
+            build_fret_board(
+                Tuning::StandardB7,
+                7,
+                &[
+                    Note::A,
+                    Note::B,
+                    Note::CSharp,
+                    Note::D,
+                    Note::E,
+                    Note::FSharp,
+                    Note::G
+                ],
+                true,
+            ),
+            vec![
+                "|---B----|--------|---Db---|---D---|-------|",
+                "|---Gb---|---G----|--------|---A---|-------|",
+                "|---D----|--------|---E----|-------|---Gb--|",
+                "|===A====|========|===B====|=======|===Db==|",
+                "|===E====|========|===Gb===|===G===|=======|",
+                "|===B====|========|===Db===|===D===|=======|",
+                "|===Gb===|===G====|========|===A===|=======|",
+                "|   7    |   8    |   9    |   10  |   11  |",
+            ]
+        );
+        assert_eq!(
+            build_fret_board(
+                Tuning::OpenE6,
+                15,
+                &[
+                    Note::A,
+                    Note::ASharp,
+                    Note::CSharp,
+                    Note::DSharp,
+                    Note::FSharp,
+                    Note::GSharp
+                ],
+                false,
+            ),
+            vec![
+                "|------|--G#--|--A---|--A#--|------|",
+                "|------|--D#--|------|------|--F#--|",
+                "|------|------|--C#--|------|--D#--|",
+                "|======|==G#==|==A===|==A#==|======|",
+                "|======|==D#==|======|======|==F#==|",
+                "|======|==G#==|==A===|==A#==|======|",
+                "|  15  |  16  |  17  |  18  |  19  |"
+            ]
+        );
+    }
 }

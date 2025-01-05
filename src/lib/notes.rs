@@ -130,3 +130,20 @@ pub const fn note_to_string(note: Note, flat: bool) -> &'static str {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_accidental_to_note() {
+        assert_eq!(accidental_to_note(&Accidental::CSharp), Note::CSharp);
+        assert_eq!(accidental_to_note(&Accidental::AFlat), Note::GSharp);
+    }
+
+    #[test]
+    fn test_note_to_string() {
+        assert_eq!(note_to_string(Note::CSharp, true), "Db");
+        assert_eq!(note_to_string(Note::GSharp, false), "G#");
+    }
+}

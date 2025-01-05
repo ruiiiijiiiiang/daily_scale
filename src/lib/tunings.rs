@@ -1,7 +1,6 @@
 use super::notes::Note;
 use clap::ValueEnum;
 
-// TODO: Add more tunings
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum Tuning {
     StandardE6,
@@ -114,5 +113,43 @@ pub const fn get_notes_by_tuning(tuning: Tuning) -> &'static [Note] {
             Note::C,
             Note::F,
         ],
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_get_tuning_name() {
+        assert_eq!(tuning_to_string(Tuning::OpenG6), "Open G (6 string)");
+        assert_eq!(tuning_to_string(Tuning::DropA7), "Drop A (7 string)");
+    }
+
+    #[test]
+    fn test_get_notes_by_tuning() {
+        assert_eq!(
+            get_notes_by_tuning(Tuning::StandardCSharp6),
+            &[
+                Note::CSharp,
+                Note::FSharp,
+                Note::CSharp,
+                Note::E,
+                Note::GSharp,
+                Note::CSharp,
+            ]
+        );
+        assert_eq!(
+            get_notes_by_tuning(Tuning::DropA7),
+            &[
+                Note::A,
+                Note::E,
+                Note::A,
+                Note::D,
+                Note::G,
+                Note::B,
+                Note::E
+            ]
+        );
     }
 }

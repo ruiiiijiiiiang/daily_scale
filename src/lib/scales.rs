@@ -84,3 +84,23 @@ pub const fn scale_to_string(scale: Scale) -> &'static str {
         Scale::Locrian => "Locrian",
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_steps_by_scale() {
+        assert_eq!(
+            get_steps_by_scale(Scale::HarmonicMinor),
+            &[0, 2, 3, 5, 7, 8, 11]
+        );
+        assert_eq!(get_steps_by_scale(Scale::Phrygian), &[0, 1, 3, 5, 7, 8, 10]);
+    }
+
+    #[test]
+    fn test_scale_to_string() {
+        assert_eq!(scale_to_string(Scale::PentatonicBlues), "Pentatonic Blues");
+        assert_eq!(scale_to_string(Scale::Dorian), "Dorian");
+    }
+}
