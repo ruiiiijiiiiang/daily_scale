@@ -28,17 +28,17 @@ When executed without any options, the program will randomly select a root note,
 
         Options:
         -t, --tuning <TUNING>
-                Your choice of tuning [default: standard-e6] [possible values: standard-e6, open-g6, open-e6, open-d6, open-c6, open-a6, drop-d6, standard-d6, drop-c-sharp6, standard-c-sharp6, drop-c6, standard-c6, standard-b7, drop-a7, standard-a7, all-fourths7]
-        -n, --root-notes <ROOT_NOTES>
-                Pool of root notes of the scale [possible values: a-flat, a, a-sharp, b-flat, b, c, c-sharp, d-flat, d, d-sharp, e-flat, e, f, f-sharp, g-flat, g, g-sharp]
+                Select the tuning you want to play in [default: standard-e6] [possible values: standard-e6, open-g6, open-e6, open-d6, open-c6, open-a6, drop-d6, standard-d6, drop-c-sharp6, standard-c-sharp6, drop-c6, standard-c6, standard-b7, drop-a7, standard-a7, all-fourths7]
         -s, --scales <SCALES>
-                Pool of scales [possible values: major, harmonic-minor, melodic-minor, natural-minor, pentatonic-major, pentatonic-minor, pentatonic-blues, pentatonic-neutral, whole-diminished, half-diminished, ionian, dorian, phrygian, lydian, mixolydian, aeolian, locrian]
+                Provide a comma separated list of scales [possible values: major, harmonic-minor, melodic-minor, natural-minor, pentatonic-major, pentatonic-minor, pentatonic-blues, pentatonic-neutral, whole-diminished, half-diminished, ionian, dorian, phrygian, lydian, mixolydian, aeolian, locrian]
+        -n, --root-notes <ROOT_NOTES>
+                Provide a comma separated list of root notes for the scale [possible values: a-flat, a, a-sharp, b-flat, b, c, c-sharp, d-flat, d, d-sharp, e-flat, e, f, f-sharp, g-flat, g, g-sharp]
         -f, --starting-frets <STARTING_FRETS>
-                Pool of frets to start the scale on
+                Provide a comma separated list of numbers for the starting fret
         -r, --full-randomness
-                If true, the rng will no longer use today's date as seed
+                If enabled, the scale generator will use a fully random seed instead of today's date
         -c, --uncolored
-                If true, the output will not be colored
+                If enabled, the output will be in plain text without color
         -h, --help
                 Print help
         -V, --version

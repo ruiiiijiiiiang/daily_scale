@@ -155,7 +155,7 @@ struct Args {
         short = 't',
         long,
         default_value = "standard-e6",
-        help = "Your choice of tuning"
+        help = "Select the tuning you want to play in"
     )]
     tuning: Option<Tuning>,
 
@@ -163,21 +163,21 @@ struct Args {
         value_enum,
         value_delimiter = ',',
         required = false,
-        short = 'n',
+        short = 's',
         long,
-        help = "Pool of root notes of the scale"
+        help = "Provide a comma separated list of scales"
     )]
-    root_notes: Option<Vec<Accidental>>,
+    scales: Option<Vec<Scale>>,
 
     #[arg(
         value_enum,
         value_delimiter = ',',
         required = false,
-        short = 's',
+        short = 'n',
         long,
-        help = "Pool of scales"
+        help = "Provide a comma separated list of root notes for the scale"
     )]
-    scales: Option<Vec<Scale>>,
+    root_notes: Option<Vec<Accidental>>,
 
     #[arg(
         value_parser = value_parser!(usize),
@@ -193,7 +193,7 @@ struct Args {
                 Err(format!("Number must be <= {}", NUM_FRETS - FRET_SPAN + 1))
             }
         },
-        help = "Pool of frets to start the scale on"
+        help = "Provide a comma separated list of numbers for the starting fret"
     )]
     starting_frets: Option<Vec<usize>>,
 
@@ -201,7 +201,7 @@ struct Args {
         required = false,
         short = 'r',
         long,
-        help = "If true, the rng will no longer use today's date as seed"
+        help = "If enabled, the scale generator will use a fully random seed instead of today's date"
     )]
     full_randomness: bool,
 
@@ -209,7 +209,7 @@ struct Args {
         required = false,
         short = 'c',
         long,
-        help = "If true, the output will not be colored"
+        help = "If enabled, the output will be in plain text without color"
     )]
     uncolored: bool,
 }
