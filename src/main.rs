@@ -6,12 +6,12 @@ fn main() {
     let Params {
         tuning,
         starting_fret,
-        flat,
         ref notes_in_scale,
+        ref format,
         ..
     } = params;
 
-    let fret_board = build_fret_board(tuning, starting_fret, notes_in_scale, flat);
+    let fret_board = build_fret_board(tuning, starting_fret, notes_in_scale, format);
 
     print_output(params, fret_board);
 }

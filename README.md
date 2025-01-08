@@ -6,6 +6,10 @@ Welcome to Daily Scale! This is a simple program that will help you practice a n
 
 When executed without any options, the program will randomly select a root note, a scale and a starting fret. (The randomness is seeded by the current date so you have all day to work on it.) Here's an example of the output:
 
+![colored output](./screenshot.png)
+
+<details><summary>Uncolored version(if your terminal doesn't support colors)</summary>
+
     |---A#---|--------|---C----|--------|---D---|
     |---F----|--------|---G----|--------|---A---|
     |--------|---D----|---D#---|--------|---F---|
@@ -15,6 +19,8 @@ When executed without any options, the program will randomly select a root note,
     |   6    |   7    |   8    |   9    |   10  |
     Here's the scale of the day: D Phrygian starting at fret 6 in Standard E (6 string) tuning
     The notes in this scale are: D, D#, F, G, A, A#, C
+
+</details>
 
 ## Features
 
@@ -31,6 +37,8 @@ When executed without any options, the program will randomly select a root note,
                 Pool of frets to start the scale on
         -r, --full-randomness
                 If true, the rng will no longer use today's date as seed
+        -c, --uncolored
+                If true, the output will not be colored
         -h, --help
                 Print help
         -V, --version
@@ -76,4 +84,3 @@ When executed without any options, the program will randomly select a root note,
 - Mixolydian
 - Aeolian
 - Locrian
-

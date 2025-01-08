@@ -1,3 +1,4 @@
+use super::cli::{format_with_color, Format};
 use super::notes::{note_to_string, Note, NOTES, NUM_NOTES};
 use super::tunings::{get_notes_by_tuning, Tuning};
 
@@ -8,8 +9,8 @@ pub const FRET_SPAN: usize = 5;
 pub fn build_fret_board(
     tuning: Tuning,
     starting_fret: usize,
-    notes_in_scale: &[Note],
-    flat: bool,
+    notes_in_scale: &[(Note, usize)],
+    format: &Format,
 ) -> Vec<String> {
     let mut fret_board = Vec::new();
     let notes_in_tuning = get_notes_by_tuning(tuning);
@@ -20,7 +21,7 @@ pub fn build_fret_board(
             '-'
         };
         let fret_board_string =
-            build_fret_board_string(starting_fret, notes_in_scale, string, string_char, flat);
+            build_fret_board_string(starting_fret, notes_in_scale, *string, string_char, format);
         fret_board.insert(0, fret_board_string);
     }
     let fret_num_string = build_fret_num_string(starting_fret);
@@ -34,12 +35,14 @@ const FRET_LENGTH: [usize; 25] = [
     0, 10, 10, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5,
 ];
 
-fn format_note(note: Note, string_char: char, flat: bool) -> String {
-    let note_string = String::from(note_to_string(note, flat));
+fn format_note(note: Note, step: usize, string_char: char, format: &Format) -> String {
+    let Format { flat, colored } = *format;
+    let note_string = note_to_string(note, flat);
+    let colored_note = format_with_color(note_string, step, colored);
     if note_string.len() == 1 {
-        format!("{}{}", note_string, string_char)
+        format!("{}{}", colored_note, string_char)
     } else {
-        note_string
+        colored_note
     }
 }
 
@@ -54,13 +57,13 @@ fn format_fret_num(fret_num: usize) -> String {
 
 fn build_fret_board_string(
     starting_fret: usize,
-    notes_in_scale: &[Note],
-    string: &Note,
+    notes_in_scale: &[(Note, usize)],
+    string: Note,
     string_char: char,
-    flat: bool,
+    format: &Format,
 ) -> String {
     let mut fret_board_string = String::new();
-    let empty_string_note_index = NOTES.iter().position(|&note| note == *string).unwrap();
+    let empty_string_note_index = NOTES.iter().position(|&note| note == string).unwrap();
     let notes_in_string = (0..=NUM_NOTES)
         .map(|fret| {
             let note_index = (empty_string_note_index + fret) % NUM_NOTES;
@@ -70,8 +73,11 @@ fn build_fret_board_string(
     for fret in starting_fret..(starting_fret + FRET_SPAN) {
         let note = notes_in_string[fret % NUM_NOTES];
         if fret == 0 {
-            if notes_in_scale.contains(&note) {
-                fret_board_string.push_str(format_note(note, string_char, flat).as_str());
+            if let Some((_, step)) = notes_in_scale
+                .iter()
+                .find(|(note_in_scale, _)| *note_in_scale == note)
+            {
+                fret_board_string.push_str(format_note(note, *step, string_char, format).as_str());
             } else {
                 fret_board_string.push(string_char);
                 fret_board_string.push(string_char);
@@ -79,14 +85,17 @@ fn build_fret_board_string(
         } else {
             fret_board_string.push('|');
             let fret_length = FRET_LENGTH[fret];
-            if notes_in_scale.contains(&note) {
+            if let Some((_, step)) = notes_in_scale
+                .iter()
+                .find(|(note_in_scale, _)| *note_in_scale == note)
+            {
                 let fret_length_odd = fret_length % 2 != 0;
                 let first_half_fret_length = fret_length / 2 - if fret_length_odd { 0 } else { 1 };
                 let second_half_fret_length = fret_length / 2 - 1;
                 for _ in 0..first_half_fret_length {
                     fret_board_string.push(string_char);
                 }
-                fret_board_string.push_str(format_note(note, string_char, flat).as_str());
+                fret_board_string.push_str(format_note(note, *step, string_char, format).as_str());
                 for _ in 0..second_half_fret_length {
                     fret_board_string.push(string_char);
                 }
@@ -132,9 +141,42 @@ mod tests {
 
     #[test]
     fn test_format_note() {
-        assert_eq!(format_note(Note::A, '-', true), "A-");
-        assert_eq!(format_note(Note::CSharp, '=', false), "C#");
-        assert_eq!(format_note(Note::GSharp, '-', true), "Ab");
+        assert_eq!(
+            format_note(
+                Note::A,
+                0,
+                '-',
+                &Format {
+                    flat: true,
+                    colored: false
+                }
+            ),
+            "A-"
+        );
+        assert_eq!(
+            format_note(
+                Note::CSharp,
+                0,
+                '=',
+                &Format {
+                    flat: false,
+                    colored: false
+                },
+            ),
+            "C#"
+        );
+        assert_eq!(
+            format_note(
+                Note::GSharp,
+                0,
+                '-',
+                &Format {
+                    flat: true,
+                    colored: false
+                },
+            ),
+            "Ab"
+        );
     }
 
     #[test]
@@ -146,26 +188,41 @@ mod tests {
     #[test]
     fn test_build_fret_board_string() {
         assert_eq!(
-            build_fret_board_string(5, &[Note::A, Note::B, Note::C], &Note::E, '=', false),
+            build_fret_board_string(
+                5,
+                &[(Note::A, 0), (Note::B, 2), (Note::C, 3)],
+                Note::E,
+                '=',
+                &Format {
+                    flat: false,
+                    colored: false
+                },
+            ),
             "|====A====|========|===B====|===C====|========|"
         );
         assert_eq!(
             build_fret_board_string(
                 12,
-                &[Note::DSharp, Note::E, Note::FSharp],
-                &Note::D,
+                &[(Note::DSharp, 1), (Note::E, 2), (Note::FSharp, 4)],
+                Note::D,
                 '=',
-                false
+                &Format {
+                    flat: false,
+                    colored: false
+                },
             ),
             "|=======|===D#==|===E===|======|==F#==|"
         );
         assert_eq!(
             build_fret_board_string(
                 0,
-                &[Note::B, Note::CSharp, Note::DSharp],
-                &Note::B,
+                &[(Note::B, 0), (Note::CSharp, 2), (Note::DSharp, 4)],
+                Note::B,
                 '-',
-                true
+                &Format {
+                    flat: true,
+                    colored: false
+                },
             ),
             "B-|----------|----Db----|---------|----Eb---|"
         );
@@ -190,15 +247,18 @@ mod tests {
                 Tuning::OpenG6,
                 0,
                 &[
-                    Note::A,
-                    Note::B,
-                    Note::C,
-                    Note::D,
-                    Note::E,
-                    Note::F,
-                    Note::GSharp
+                    (Note::A, 0),
+                    (Note::B, 2),
+                    (Note::C, 3),
+                    (Note::D, 5),
+                    (Note::E, 7),
+                    (Note::F, 8),
+                    (Note::GSharp, 11),
                 ],
-                false,
+                &Format {
+                    flat: false,
+                    colored: false
+                },
             ),
             vec![
                 "D-|----------|----E-----|----F----|---------|",
@@ -215,15 +275,18 @@ mod tests {
                 Tuning::StandardB7,
                 7,
                 &[
-                    Note::A,
-                    Note::B,
-                    Note::CSharp,
-                    Note::D,
-                    Note::E,
-                    Note::FSharp,
-                    Note::G
+                    (Note::A, 0),
+                    (Note::B, 2),
+                    (Note::CSharp, 4),
+                    (Note::D, 5),
+                    (Note::E, 7),
+                    (Note::FSharp, 9),
+                    (Note::G, 10),
                 ],
-                true,
+                &Format {
+                    flat: true,
+                    colored: false
+                },
             ),
             vec![
                 "|---B----|--------|---Db---|---D---|-------|",
@@ -241,14 +304,17 @@ mod tests {
                 Tuning::OpenE6,
                 15,
                 &[
-                    Note::A,
-                    Note::ASharp,
-                    Note::CSharp,
-                    Note::DSharp,
-                    Note::FSharp,
-                    Note::GSharp
+                    (Note::A, 0),
+                    (Note::ASharp, 1),
+                    (Note::CSharp, 4),
+                    (Note::DSharp, 6),
+                    (Note::FSharp, 9),
+                    (Note::GSharp, 11),
                 ],
-                false,
+                &Format {
+                    flat: false,
+                    colored: false
+                },
             ),
             vec![
                 "|------|--G#--|--A---|--A#--|------|",
