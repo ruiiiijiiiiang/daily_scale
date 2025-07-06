@@ -1,10 +1,18 @@
 [package]
 name = "daily-scale"
-version = "0.2.1"
+version = "0.1.0"
 edition = "2021"
+authors = ["Rui Jiang <ruiiiijiiiiang@gmail.com>"]
+description = "A simple program that will help you practice a new scale every day"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ruiiiijiiiiang/daily_scale"
+keywords = ["music", "guitar", "scale", "practice", "cli"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 chrono = "0.4.39"
 clap = { version = "4.5.23", features = ["derive"] }
 colored = "3.0.0"
 rand = "0.8.5"
+
