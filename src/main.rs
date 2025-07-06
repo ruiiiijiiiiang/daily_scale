@@ -1,5 +1,13 @@
-use daily_scale::lib::cli::{get_params, print_output, Params};
-use daily_scale::lib::fret_board::build_fret_board;
+mod cli;
+mod fret_board;
+mod notes;
+mod scales;
+mod tunings;
+
+use crate::{
+    cli::{get_params, print_output, Params},
+    fret_board::build_fret_board,
+};
 
 fn main() {
     let params = get_params();

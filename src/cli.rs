@@ -1,16 +1,14 @@
 use chrono::{Datelike, Utc};
 use clap::Parser;
 use colored::Colorize;
-use rand::rngs::StdRng;
-use rand::seq::SliceRandom;
-use rand::{RngCore, SeedableRng};
+use rand::{rngs::StdRng, seq::SliceRandom, RngCore, SeedableRng};
 
-use super::fret_board::{FRET_SPAN, NUM_FRETS};
-use super::notes::{
-    accidental_to_note, note_to_string, Accidental, Note, FLAT_ACCIDENTALS, NOTES, NUM_NOTES,
+use crate::{
+    fret_board::{FRET_SPAN, NUM_FRETS},
+    notes::{Accidental, Note, FLAT_ACCIDENTALS, NOTES, NUM_NOTES},
+    scales::{Scale, SCALES},
+    tunings::Tuning,
 };
-use super::scales::{get_steps_by_scale, scale_to_string, Scale, SCALES};
-use super::tunings::{tuning_to_string, Tuning};
 
 pub struct Format {
     pub flat: bool,
@@ -52,7 +50,7 @@ pub fn get_params() -> Params {
         if FLAT_ACCIDENTALS.contains(arg_note) {
             flat = true
         }
-        accidental_to_note(arg_note)
+        arg_note.to_note()
     } else {
         NOTES.choose(&mut rng).copied().unwrap()
     };
@@ -75,7 +73,7 @@ pub fn get_params() -> Params {
     };
 
     let root_note_index = NOTES.iter().position(|&note| note == root_note).unwrap();
-    let steps = get_steps_by_scale(scale);
+    let steps = scale.get_steps();
     let notes_in_scale = steps
         .iter()
         .map(|step| {
@@ -112,17 +110,17 @@ pub fn print_output(params: Params, fret_board: Vec<String>) {
 
     println!(
         "Here's the scale of the day: {} {} starting at fret {} in {} tuning",
-        format_with_color(note_to_string(root_note, flat), 0, colored),
-        scale_to_string(scale),
+        format_with_color(root_note.to_str(flat), 0, colored),
+        scale.to_str(),
         starting_fret,
-        tuning_to_string(tuning),
+        tuning.to_str(),
     );
 
     println!(
         "The notes in this scale are: {}",
         notes_in_scale
             .iter()
-            .map(|(note, step)| format_with_color(note_to_string(*note, flat), *step, colored))
+            .map(|(note, step)| format_with_color(note.to_str(flat), *step, colored))
             .collect::<Vec<String>>()
             .join(", ")
     );

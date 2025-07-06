@@ -1,6 +1,8 @@
-use super::cli::{format_with_color, Format};
-use super::notes::{note_to_string, Note, NOTES, NUM_NOTES};
-use super::tunings::{get_notes_by_tuning, Tuning};
+use crate::{
+    cli::{format_with_color, Format},
+    notes::{Note, NOTES, NUM_NOTES},
+    tunings::Tuning,
+};
 
 pub const NUM_FRETS: usize = 24;
 
@@ -13,7 +15,7 @@ pub fn build_fret_board(
     format: &Format,
 ) -> Vec<String> {
     let mut fret_board = Vec::new();
-    let notes_in_tuning = get_notes_by_tuning(tuning);
+    let notes_in_tuning = tuning.get_notes();
     for (string_counter, string) in notes_in_tuning.iter().enumerate() {
         let string_char = if string_counter < (notes_in_tuning.len() - NUM_THICK_STRINGS) {
             '='
@@ -37,7 +39,7 @@ const FRET_LENGTH: [usize; 25] = [
 
 fn format_note(note: Note, step: usize, string_char: char, format: &Format) -> String {
     let Format { flat, colored } = *format;
-    let note_string = note_to_string(note, flat);
+    let note_string = note.to_str(flat);
     let colored_note = format_with_color(note_string, step, colored);
     if note_string.len() == 1 {
         format!("{}{}", colored_note, string_char)
