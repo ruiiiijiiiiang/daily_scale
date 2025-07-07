@@ -1,23 +1,41 @@
 use clap::ValueEnum;
+use strum::{Display, EnumIter};
 
-#[derive(Copy, Clone, Debug, ValueEnum)]
+#[derive(Copy, Clone, Debug, ValueEnum, EnumIter, Display)]
 pub enum Scale {
+    #[strum(to_string = "Major")]
     Major,
+    #[strum(to_string = "Harmonic Minor")]
     HarmonicMinor,
+    #[strum(to_string = "Melodic Minor")]
     MelodicMinor,
+    #[strum(to_string = "Natural Minor")]
     NaturalMinor,
+    #[strum(to_string = "Pentatonic Major")]
     PentatonicMajor,
+    #[strum(to_string = "Pentatonic Minor")]
     PentatonicMinor,
+    #[strum(to_string = "Pentatonic Blues")]
     PentatonicBlues,
+    #[strum(to_string = "Pentatonic Neutral")]
     PentatonicNeutral,
+    #[strum(to_string = "Whole Diminished")]
     WholeDiminished,
+    #[strum(to_string = "Half Diminished")]
     HalfDiminished,
+    #[strum(to_string = "Ionian")]
     Ionian,
+    #[strum(to_string = "Dorian")]
     Dorian,
+    #[strum(to_string = "Phrygian")]
     Phrygian,
+    #[strum(to_string = "Lydian")]
     Lydian,
+    #[strum(to_string = "Mixolydian")]
     Mixolydian,
+    #[strum(to_string = "Aeolian")]
     Aeolian,
+    #[strum(to_string = "Locrian")]
     Locrian,
 }
 
@@ -43,49 +61,7 @@ impl Scale {
             Scale::Locrian => &[0, 1, 3, 5, 6, 8, 10],
         }
     }
-
-    pub fn to_str(self) -> &'static str {
-        match self {
-            Scale::Major => "Major",
-            Scale::HarmonicMinor => "Harmonic Minor",
-            Scale::MelodicMinor => "Melodic Minor",
-            Scale::NaturalMinor => "Natural Minor",
-            Scale::PentatonicMajor => "Pentatonic Major",
-            Scale::PentatonicMinor => "Pentatonic Minor",
-            Scale::PentatonicBlues => "Pentatonic Blues",
-            Scale::PentatonicNeutral => "Pentatonic Neutral",
-            Scale::WholeDiminished => "Whole Diminished",
-            Scale::HalfDiminished => "Half Diminished",
-            Scale::Ionian => "Ionian",
-            Scale::Dorian => "Dorian",
-            Scale::Phrygian => "Phrygian",
-            Scale::Lydian => "Lydian",
-            Scale::Mixolydian => "Mixolydian",
-            Scale::Aeolian => "Aeolian",
-            Scale::Locrian => "Locrian",
-        }
-    }
 }
-
-pub const SCALES: [Scale; 17] = [
-    Scale::Major,
-    Scale::HarmonicMinor,
-    Scale::MelodicMinor,
-    Scale::NaturalMinor,
-    Scale::PentatonicMajor,
-    Scale::PentatonicMinor,
-    Scale::PentatonicBlues,
-    Scale::PentatonicNeutral,
-    Scale::WholeDiminished,
-    Scale::HalfDiminished,
-    Scale::Ionian,
-    Scale::Dorian,
-    Scale::Phrygian,
-    Scale::Lydian,
-    Scale::Mixolydian,
-    Scale::Aeolian,
-    Scale::Locrian,
-];
 
 #[cfg(test)]
 mod tests {
@@ -95,11 +71,5 @@ mod tests {
     fn test_get_steps() {
         assert_eq!(Scale::HarmonicMinor.get_steps(), &[0, 2, 3, 5, 7, 8, 11]);
         assert_eq!(Scale::Phrygian.get_steps(), &[0, 1, 3, 5, 7, 8, 10]);
-    }
-
-    #[test]
-    fn test_to_string() {
-        assert_eq!(Scale::PentatonicBlues.to_str(), "Pentatonic Blues");
-        assert_eq!(Scale::Dorian.to_str(), "Dorian");
     }
 }

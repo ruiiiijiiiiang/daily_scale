@@ -1,48 +1,45 @@
-use crate::notes::Note;
 use clap::ValueEnum;
+use strum::Display;
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+use crate::notes::Note;
+
+#[derive(Debug, Clone, Copy, ValueEnum, Display)]
 pub enum Tuning {
+    #[strum(to_string = "Standard E (6 string)")]
     StandardE6,
+    #[strum(to_string = "Open G (6 string)")]
     OpenG6,
+    #[strum(to_string = "Open E (6 string)")]
     OpenE6,
+    #[strum(to_string = "Open D (6 string)")]
     OpenD6,
+    #[strum(to_string = "Open C (6 string)")]
     OpenC6,
+    #[strum(to_string = "Open A (6 string)")]
     OpenA6,
+    #[strum(to_string = "Drop D (6 string)")]
     DropD6,
+    #[strum(to_string = "Standard D (6 string)")]
     StandardD6,
+    #[strum(to_string = "Drop C# (6 string)")]
     DropCSharp6,
+    #[strum(to_string = "Standard C# (6 string)")]
     StandardCSharp6,
+    #[strum(to_string = "Drop C (6 string)")]
     DropC6,
+    #[strum(to_string = "Standard C (6 string)")]
     StandardC6,
+    #[strum(to_string = "Standard B (7 string)")]
     StandardB7,
+    #[strum(to_string = "Drop A (7 string)")]
     DropA7,
+    #[strum(to_string = "Standard A (7 string)")]
     StandardA7,
+    #[strum(to_string = "All fourths (7 string)")]
     AllFourths7,
 }
 
 impl Tuning {
-    pub fn to_str(self) -> &'static str {
-        match self {
-            Tuning::StandardE6 => "Standard E (6 string)",
-            Tuning::OpenG6 => "Open G (6 string)",
-            Tuning::OpenE6 => "Open E (6 string)",
-            Tuning::OpenD6 => "Open D (6 string)",
-            Tuning::OpenC6 => "Open C (6 string)",
-            Tuning::OpenA6 => "Open A (6 string)",
-            Tuning::DropD6 => "Drop D (6 string)",
-            Tuning::StandardD6 => "Standard D (6 string)",
-            Tuning::DropCSharp6 => "Drop C# (6 string)",
-            Tuning::StandardCSharp6 => "Standard C# (6 string)",
-            Tuning::DropC6 => "Drop C (6 string)",
-            Tuning::StandardC6 => "Standard C (6 string)",
-            Tuning::StandardB7 => "Standard B (7 string)",
-            Tuning::DropA7 => "Drop A (7 string)",
-            Tuning::StandardA7 => "Standard A (7 string)",
-            Tuning::AllFourths7 => "All fourths (7 string)",
-        }
-    }
-
     pub fn get_notes(&self) -> &'static [Note] {
         match self {
             Tuning::StandardE6 => &[Note::E, Note::A, Note::D, Note::G, Note::B, Note::E],
@@ -121,12 +118,6 @@ impl Tuning {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    #[test]
-    fn test_to_str() {
-        assert_eq!(Tuning::OpenG6.to_str(), "Open G (6 string)");
-        assert_eq!(Tuning::DropA7.to_str(), "Drop A (7 string)");
-    }
 
     #[test]
     fn test_get_notes() {

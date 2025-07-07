@@ -1,12 +1,13 @@
 use chrono::{Datelike, Utc};
 use clap::Parser;
 use colored::Colorize;
-use rand::{rngs::StdRng, seq::SliceRandom, RngCore, SeedableRng};
+use rand::{rng, rngs::StdRng, seq::IndexedRandom, Rng, SeedableRng};
+use strum::IntoEnumIterator;
 
 use crate::{
     fret_board::{FRET_SPAN, NUM_FRETS},
-    notes::{Accidental, Note, FLAT_ACCIDENTALS, NOTES, NUM_NOTES},
-    scales::{Scale, SCALES},
+    notes::{get_flat_accidentals, Accidental, Note, NUM_NOTES},
+    scales::Scale,
     tunings::Tuning,
 };
 
@@ -25,34 +26,40 @@ pub struct Params {
 }
 
 pub fn get_params() -> Params {
+    let args = Args::parse();
+
+    if args.full_randomness {
+        get_params_impl(&mut rng(), args)
+    } else {
+        let seed = Utc::now().date_naive().num_days_from_ce() as u64;
+        get_params_impl(&mut StdRng::seed_from_u64(seed), args)
+    }
+}
+
+fn get_params_impl<R: Rng + ?Sized>(rng: &mut R, args: Args) -> Params {
     let Args {
         tuning,
         root_notes,
         scales,
         starting_frets,
-        full_randomness,
         uncolored,
         ..
-    } = Args::parse();
+    } = args;
 
-    let mut rng: Box<dyn RngCore> = if full_randomness {
-        Box::new(rand::thread_rng())
-    } else {
-        let seed = Utc::now().date_naive().num_days_from_ce() as u64;
-        Box::new(StdRng::seed_from_u64(seed))
-    };
+    let notes = Note::iter().collect::<Vec<Note>>();
+    let flat_accidentals = get_flat_accidentals();
 
     let tuning = tuning.unwrap();
 
     let mut flat = false;
     let root_note = if let Some(ref arg_notes) = root_notes {
-        let arg_note = arg_notes.choose(&mut rng).unwrap();
-        if FLAT_ACCIDENTALS.contains(arg_note) {
+        let arg_note = arg_notes.choose(rng).unwrap();
+        if flat_accidentals.contains(arg_note) {
             flat = true
         }
         arg_note.to_note()
     } else {
-        NOTES.choose(&mut rng).copied().unwrap()
+        notes.choose(rng).copied().unwrap()
     };
     let format = Format {
         flat,
@@ -60,25 +67,29 @@ pub fn get_params() -> Params {
     };
 
     let scale = if let Some(ref arg_scales) = scales {
-        arg_scales.choose(&mut rng).copied().unwrap()
+        arg_scales.choose(rng).copied().unwrap()
     } else {
-        SCALES.choose(&mut rng).copied().unwrap()
+        Scale::iter()
+            .collect::<Vec<Scale>>()
+            .choose(rng)
+            .copied()
+            .unwrap()
     };
 
     let all_frets: Vec<usize> = (0..=NUM_FRETS - FRET_SPAN).collect();
     let starting_fret = if let Some(ref arg_frets) = starting_frets {
-        arg_frets.choose(&mut rng).copied().unwrap()
+        arg_frets.choose(rng).copied().unwrap()
     } else {
-        all_frets.choose(&mut rng).copied().unwrap()
+        all_frets.choose(rng).copied().unwrap()
     };
 
-    let root_note_index = NOTES.iter().position(|&note| note == root_note).unwrap();
+    let root_note_index = notes.iter().position(|&note| note == root_note).unwrap();
     let steps = scale.get_steps();
     let notes_in_scale = steps
         .iter()
         .map(|step| {
             let note_index = (root_note_index + *step) % NUM_NOTES;
-            (NOTES[note_index], *step)
+            (notes[note_index], *step)
         })
         .collect::<Vec<(Note, usize)>>();
 
@@ -111,9 +122,9 @@ pub fn print_output(params: Params, fret_board: Vec<String>) {
     println!(
         "Here's the scale of the day: {} {} starting at fret {} in {} tuning",
         format_with_color(root_note.to_str(flat), 0, colored),
-        scale.to_str(),
+        scale,
         starting_fret,
-        tuning.to_str(),
+        tuning,
     );
 
     println!(
@@ -211,3 +222,4 @@ struct Args {
     )]
     uncolored: bool,
 }
+

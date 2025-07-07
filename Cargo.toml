@@ -1,8 +1,8 @@
 [package]
 name = "daily-scale"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
-authors = ["Rui Jiang <ruiiiijiiiiang@gmail.com>"]
+authors = ["Rui Jiang <me@ruijiang.me>"]
 description = "A simple program that will help you practice a new scale every day"
 license = "MIT"
 readme = "README.md"
@@ -14,5 +14,5 @@ categories = ["command-line-utilities"]
 chrono = "0.4.39"
 clap = { version = "4.5.23", features = ["derive"] }
 colored = "3.0.0"
-rand = "0.8.5"
-
+rand = "0.9.1"
+strum = { version = "0.27.1", features = ["derive"] }

@@ -1,6 +1,8 @@
+use strum::IntoEnumIterator;
+
 use crate::{
     cli::{format_with_color, Format},
-    notes::{Note, NOTES, NUM_NOTES},
+    notes::{Note, NUM_NOTES},
     tunings::Tuning,
 };
 
@@ -17,7 +19,7 @@ pub fn build_fret_board(
     let mut fret_board = Vec::new();
     let notes_in_tuning = tuning.get_notes();
     for (string_counter, string) in notes_in_tuning.iter().enumerate() {
-        let string_char = if string_counter < (notes_in_tuning.len() - NUM_THICK_STRINGS) {
+        let string_char = if string_counter < (notes_in_tuning.len() - NUM_THIN_STRINGS) {
             '='
         } else {
             '-'
@@ -31,7 +33,7 @@ pub fn build_fret_board(
     fret_board
 }
 
-const NUM_THICK_STRINGS: usize = 3;
+const NUM_THIN_STRINGS: usize = 3;
 
 const FRET_LENGTH: [usize; 25] = [
     0, 10, 10, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5,
@@ -65,11 +67,12 @@ fn build_fret_board_string(
     format: &Format,
 ) -> String {
     let mut fret_board_string = String::new();
-    let empty_string_note_index = NOTES.iter().position(|&note| note == string).unwrap();
+    let notes = Note::iter().collect::<Vec<Note>>();
+    let empty_string_note_index = notes.iter().position(|&note| note == string).unwrap();
     let notes_in_string = (0..=NUM_NOTES)
         .map(|fret| {
             let note_index = (empty_string_note_index + fret) % NUM_NOTES;
-            NOTES[note_index]
+            notes[note_index]
         })
         .collect::<Vec<Note>>();
     for fret in starting_fret..(starting_fret + FRET_SPAN) {

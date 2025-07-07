@@ -1,8 +1,10 @@
 use clap::ValueEnum;
+use std::collections::HashSet;
+use strum::EnumIter;
 
 pub const NUM_NOTES: usize = 12;
 
-#[derive(Copy, Clone, Debug, ValueEnum, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, ValueEnum, PartialEq, Eq, Hash)]
 pub enum Accidental {
     AFlat,
     A,
@@ -47,7 +49,7 @@ impl Accidental {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, EnumIter)]
 pub enum Note {
     A,
     ASharp,
@@ -112,28 +114,17 @@ impl Note {
     }
 }
 
-pub const NOTES: [Note; 12] = [
-    Note::A,
-    Note::ASharp,
-    Note::B,
-    Note::C,
-    Note::CSharp,
-    Note::D,
-    Note::DSharp,
-    Note::E,
-    Note::F,
-    Note::FSharp,
-    Note::G,
-    Note::GSharp,
-];
-
-pub const FLAT_ACCIDENTALS: [Accidental; 5] = [
-    Accidental::AFlat,
-    Accidental::BFlat,
-    Accidental::DFlat,
-    Accidental::EFlat,
-    Accidental::GFlat,
-];
+pub fn get_flat_accidentals() -> HashSet<Accidental> {
+    [
+        Accidental::AFlat,
+        Accidental::BFlat,
+        Accidental::DFlat,
+        Accidental::EFlat,
+        Accidental::GFlat,
+    ]
+    .into_iter()
+    .collect::<HashSet<Accidental>>()
+}
 
 #[cfg(test)]
 mod tests {
