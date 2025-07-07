@@ -1,6 +1,6 @@
 [package]
 name = "daily-scale"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Rui Jiang <me@ruijiang.me>"]
 description = "A simple program that will help you practice a new scale every day"
