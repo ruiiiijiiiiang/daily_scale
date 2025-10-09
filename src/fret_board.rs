@@ -94,7 +94,7 @@ fn build_fret_board_string(
                 .iter()
                 .find(|(note_in_scale, _)| *note_in_scale == note)
             {
-                let fret_length_odd = fret_length % 2 != 0;
+                let fret_length_odd = !fret_length.is_multiple_of(2);
                 let first_half_fret_length = fret_length / 2 - if fret_length_odd { 0 } else { 1 };
                 let second_half_fret_length = fret_length / 2 - 1;
                 for _ in 0..first_half_fret_length {
@@ -124,7 +124,7 @@ fn build_fret_num_string(starting_fret: usize) -> String {
         } else {
             fret_num_string.push('|');
             let fret_length = FRET_LENGTH[fret];
-            let fret_length_odd = fret_length % 2 != 0;
+            let fret_length_odd = !fret_length.is_multiple_of(2);
             let first_half_fret_length = fret_length / 2 - if fret_length_odd { 0 } else { 1 };
             let second_half_fret_length = fret_length / 2 - 1;
             for _ in 0..first_half_fret_length {
